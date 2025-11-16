@@ -1,0 +1,16 @@
+services:
+  web:
+    build: .
+    environment:
+      DB_HOST: postgres
+      DB_NAME: ${DB_NAME:-pets}
+      DB_USER: ${DB_USER:-dockeruser}
+      DB_PASSWORD: ${DB_PASSWORD:-dockerpass}
+    ports:
+      - "3000:3000"
+    depends_on:
+      - postgres
+    networks:
+      - app
+networks:
+  app:

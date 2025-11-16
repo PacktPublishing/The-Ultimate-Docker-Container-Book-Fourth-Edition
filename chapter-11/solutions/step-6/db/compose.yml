@@ -1,0 +1,16 @@
+services:
+  postgres:
+    image: postgres:alpine
+    environment:
+      POSTGRES_USER: ${DB_USER:-dockeruser}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-dockerpass}
+      POSTGRES_DB: ${DB_NAME:-pets}
+    volumes:
+      - pg_data:/var/lib/postgresql/data
+      - ./init-db.sql:/docker-entrypoint-initdb.d/init.sql:ro
+    networks:
+      - app
+volumes:
+  pg_data:
+networks:
+  app:

@@ -1,0 +1,14 @@
+{
+  "name": "wild-animals",
+  "version": "2.0.0",
+  "description": "Wild Animals of Massai Mara National Park",
+  "main": "src/server.js",
+  "scripts": {
+    "start": "node src/server.js"
+  },
+  "dependencies": {
+    "express": "^5.1.0",
+    "mustache-express": "^1.3.2",
+    "pg": "^8.16.3"
+  }
+}

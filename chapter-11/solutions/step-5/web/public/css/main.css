@@ -1,0 +1,135 @@
+/* ---- Header Row and Refresh Button ------------------------------------- */
+.header-row {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  margin-bottom: 8px;
+}
+
+.refresh-btn {
+  background: var(--accent);
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  padding: 8px 18px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.10);
+  transition: background 0.2s, transform 0.1s;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.refresh-btn:hover {
+  background: #4d6cff;
+  transform: translateY(-1px) scale(1.04);
+}
+/* ---- Theme tokens ------------------------------------------------------- */
+:root{
+  --bg: radial-gradient(1200px 800px at 20% -10%, #e9f1ff 0%, transparent 60%),
+        radial-gradient(1000px 600px at 120% 20%, #ffe9f4 0%, transparent 55%),
+        #0f1221;
+  --card-bg: rgba(255,255,255,0.08);
+  --text: #f6f7fb;
+  --muted: #b6bdd6;
+  --accent: #7aa2ff;
+  --shadow: 0 20px 50px rgba(0,0,0,.35);
+  --radius: 18px;
+}
+
+/* Respect user preference */
+@media (prefers-color-scheme: light){
+  :root{
+    --bg: radial-gradient(1200px 800px at 20% -10%, #dbe8ff 0%, transparent 60%),
+          radial-gradient(1000px 600px at 120% 20%, #ffe3ef 0%, transparent 55%),
+          #f7f8fc;
+    --card-bg: rgba(255,255,255,0.7);
+    --text: #111321;
+    --muted: #49506a;
+    --accent: #3d63ff;
+    --shadow: 0 20px 60px rgba(14,22,58,.12);
+  }
+}
+
+/* ---- Page base ---------------------------------------------------------- */
+* { box-sizing: border-box; }
+html, body { height: 100%; }
+body{
+  margin: 0;
+  color: var(--text);
+  background: var(--bg) fixed;
+  font: 16px/1.5 ui-sans-serif, system-ui, -apple-system, "Segoe UI",
+        Roboto, "Helvetica Neue", Arial, "Noto Sans", "Liberation Sans", sans-serif;
+  display: grid;
+  place-items: center;
+  padding: 24px;
+}
+
+/* ---- Card --------------------------------------------------------------- */
+.container{
+  width: min(920px, 96vw);
+  background: var(--card-bg);
+  backdrop-filter: blur(10px);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  padding: clamp(20px, 4vw, 40px);
+  border: 1px solid rgba(255,255,255,.12);
+  animation: fadeUp .6s ease both;
+}
+
+@keyframes fadeUp{
+  from{ opacity: 0; transform: translateY(8px) scale(.98); }
+  to  { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+/* ---- Typography --------------------------------------------------------- */
+h4{
+  margin: 0 0 16px;
+  font-size: clamp(24px, 3.2vw, 34px);
+  letter-spacing: .3px;
+  font-weight: 700;
+}
+
+p{ margin: 10px 0 0; color: var(--muted); }
+small{ opacity: .9; }
+
+a{
+  color: var(--accent);
+  text-decoration: none;
+  border-bottom: 1px solid transparent;
+  transition: border-color .2s ease, color .2s ease, opacity .2s ease;
+}
+a:hover{ border-color: currentColor; }
+
+/* ---- Media -------------------------------------------------------------- */
+img{
+  display: block;
+  width: min(720px, 100%);
+  max-height: 65vh;
+  object-fit: cover;
+  border-radius: calc(var(--radius) - 6px);
+  margin: 12px auto 14px;
+  box-shadow: 0 12px 28px rgba(0,0,0,.35);
+  transition: transform .2s ease, box-shadow .2s ease;
+}
+img:hover{
+  transform: translateY(-2px);
+  box-shadow: 0 18px 44px rgba(0,0,0,.40);
+}
+
+/* ---- Footer-ish line ---------------------------------------------------- */
+.container > p:last-child{
+  margin-top: 14px;
+  padding-top: 12px;
+  border-top: 1px dashed rgba(255,255,255,.18);
+}
+@media (prefers-color-scheme: light){
+  .container > p:last-child{ border-top-color: rgba(0,0,0,.12); }
+}
+
+/* ---- Small screens tweaks ---------------------------------------------- */
+@media (max-width: 420px){
+  .container{ padding: 18px; }
+  img{ max-height: 48vh; }
+}

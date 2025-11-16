@@ -1,0 +1,37 @@
+img {
+  display: block;
+  max-width: 100%;
+  height: auto;
+  margin: 16px auto;
+  border-radius: 6px;
+}
+body {
+  background: #f8f9fa;
+  color: #222;
+  font-family: Arial, sans-serif;
+  margin: 0;
+  padding: 24px;
+}
+.container {
+  background: #fff;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px #ccc;
+  padding: 32px;
+  max-width: 600px;
+  margin: 40px auto;
+}
+h1 {
+  font-size: 2rem;
+  margin-bottom: 16px;
+}
+button {
+  padding: 8px 16px;
+  border-radius: 6px;
+  border: none;
+  background: #007bff;
+  color: #fff;
+  cursor: pointer;
+}
+button:hover {
+  background: #0056b3;
+}

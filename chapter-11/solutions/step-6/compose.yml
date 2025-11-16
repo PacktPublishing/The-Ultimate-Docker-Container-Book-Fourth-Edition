@@ -1,0 +1,22 @@
+include:
+  - ./db/compose.yml
+  - ./web/compose.yml
+
+# Optionally put root-level extras here 
+# (e.g., our Pg4Admin service)
+services:
+  pgadmin:
+    image: dpage/pgadmin4
+    ports:
+      - "5050:80"
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@acme.com
+      PGADMIN_DEFAULT_PASSWORD: admin
+    volumes:
+      - pgadmin-data:/var/lib/pgadmin
+
+volumes:
+  pgadmin-data:
+
+networks:
+  app:
