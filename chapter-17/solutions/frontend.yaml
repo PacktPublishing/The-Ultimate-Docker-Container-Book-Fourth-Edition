@@ -1,0 +1,50 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: taskboard-web
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: taskboard-web
+  template:
+    metadata:
+      labels:
+        app: taskboard-web
+    spec:
+      containers:
+        - name: web
+          image: gnschenker/taskboard-web:1.0.1  # REPLACE "gnschenker" WITH YOUR DOCKERHUB USERNAME
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 80
+          env:
+            - name: API_BASE_URL
+              value: "http://taskboard-api:8080"
+          readinessProbe:
+            httpGet:
+              path: /
+              port: 80
+            initialDelaySeconds: 5
+            periodSeconds: 10
+          livenessProbe:
+            httpGet:
+              path: /
+              port: 80
+            initialDelaySeconds: 10
+            periodSeconds: 15
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: taskboard-web
+  annotations:
+    service.beta.kubernetes.io/aws-load-balancer-type: "nlb"
+spec:
+  selector:
+    app: taskboard-web
+  ports:
+    - name: http
+      port: 80
+      targetPort: 80
+  type: LoadBalancer
