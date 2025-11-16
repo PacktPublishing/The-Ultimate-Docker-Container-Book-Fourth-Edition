@@ -1,0 +1,18 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: taskboard-config
+data:
+  API_LOG_LEVEL: "info"
+  API_PORT: "8080"
+  DB_HOST: "db"
+  DB_NAME: "taskboard"
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: taskboard-secrets
+type: Opaque
+stringData:
+  DB_USER: taskuser
+  DB_PASSWORD: taskpass

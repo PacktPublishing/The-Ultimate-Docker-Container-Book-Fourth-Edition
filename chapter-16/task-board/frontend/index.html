@@ -1,0 +1,60 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>TaskBoard</title>
+  <style>
+    body{font-family:-apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Helvetica,Arial,sans-serif;margin:40px;line-height:1.4}
+    h1{margin-bottom:0.5rem}
+    .row{display:flex;gap:12px;margin-top:12px}
+    input,button{padding:8px;font-size:1rem}
+    ul{list-style:none;padding:0}
+    li{display:flex;justify-content:space-between;align-items:center;padding:8px;border:1px solid #ddd;border-radius:8px;margin-bottom:8px}
+    .status{font-size:0.85rem;opacity:0.7}
+  </style>
+</head>
+<body>
+  <h1>TaskBoard</h1>
+  <p>A minimal task list to demonstrate Kubernetes deployments and updates.</p>
+
+  <div class="row">
+    <input id="title" placeholder="New task title" />
+    <button onclick="addTask()">Add</button>
+  </div>
+
+  <ul id="tasks"></ul>
+
+  <script>
+    async function fetchTasks(){
+      const res = await fetch('/api/tasks');
+      const data = await res.json();
+      const ul = document.getElementById('tasks');
+      ul.innerHTML = '';
+      for(const t of data){
+        const li = document.createElement('li');
+        li.innerHTML = `<span><strong>${escapeHtml(t.title)}</strong> <span class="status">(${t.status})</span></span>`+
+                       `<span><button onclick="setDone(${t.id})">Done</button> <button onclick="del(${t.id})">Delete</button></span>`;
+        ul.appendChild(li);
+      }
+    }
+    async function addTask(){
+      const title = document.getElementById('title').value.trim();
+      if(!title) return;
+      await fetch('/api/tasks', {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({title})});
+      document.getElementById('title').value='';
+      fetchTasks();
+    }
+    async function setDone(id){
+      await fetch(`/api/tasks/${id}`, {method:'PATCH', headers:{'Content-Type':'application/json'}, body:JSON.stringify({status:'done'})});
+      fetchTasks();
+    }
+    async function del(id){
+      await fetch(`/api/tasks/${id}`, {method:'DELETE'});
+      fetchTasks();
+    }
+    function escapeHtml(s){return s.replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;','\'':'&#39;'}[c]))}
+    fetchTasks();
+  </script>
+</body>
+</html>

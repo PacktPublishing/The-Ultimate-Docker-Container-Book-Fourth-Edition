@@ -1,0 +1,29 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: frontend
+spec:
+  replicas: 2
+  selector:
+    matchLabels: { app: taskboard, tier: web }
+  template:
+    metadata:
+      labels: { app: taskboard, tier: web }
+    spec:
+      containers:
+        - name: nginx
+          image: taskboard-frontend:1.0.0
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 80
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: frontend
+spec:
+  type: NodePort   # convenient with minikube
+  selector: { app: taskboard, tier: web }
+  ports:
+    - port: 80
+      targetPort: 80

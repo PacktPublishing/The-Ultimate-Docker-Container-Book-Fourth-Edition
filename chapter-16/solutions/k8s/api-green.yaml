@@ -1,0 +1,43 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: api-green
+  labels:
+    app: taskboard
+    tier: api
+    color: green
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: taskboard
+      tier: api
+      color: green
+  template:
+    metadata:
+      labels:
+        app: taskboard
+        tier: api
+        color: green
+    spec:
+      containers:
+        - name: api
+          image: taskboard-api:1.1.0
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 8080
+          envFrom:
+            - configMapRef: { name: taskboard-config }
+            - secretRef: { name: taskboard-secrets }
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: 8080
+            initialDelaySeconds: 5
+            periodSeconds: 5
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 8080
+            initialDelaySeconds: 10
+            periodSeconds: 10

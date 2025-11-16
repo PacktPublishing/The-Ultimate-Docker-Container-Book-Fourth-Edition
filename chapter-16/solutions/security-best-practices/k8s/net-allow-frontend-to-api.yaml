@@ -1,0 +1,20 @@
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: allow-frontend-to-api
+  namespace: taskboard
+spec:
+  podSelector:
+    matchLabels:
+      app: taskboard
+      tier: api
+  policyTypes: ["Ingress"]
+  ingress:
+    - from:
+        - podSelector:
+            matchLabels:
+              app: taskboard
+              tier: web
+      ports:
+        - protocol: TCP
+          port: 8080

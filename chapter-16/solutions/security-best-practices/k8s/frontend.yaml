@@ -1,0 +1,78 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: frontend
+spec:
+  replicas: 2
+  selector:
+    matchLabels: { app: taskboard, tier: web }
+
+  template:
+    metadata:
+      labels: { app: taskboard, tier: web }
+    spec:
+      serviceAccountName: api-sa
+      containers:
+        - name: nginx
+          image: taskboard-frontend:1.0.0
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 80
+          
+          # Security hardening
+          securityContext:
+            runAsNonRoot: true
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            runAsUser: 10100        # Matches the USER created in Dockerfile
+            capabilities:
+              drop: ["ALL"]
+
+          # Simple readiness probe to ensure NGINX is serving
+          readinessProbe:
+            httpGet:
+              path: /
+              port: 80
+            initialDelaySeconds: 5
+            periodSeconds: 5
+
+          # Liveness probe to verify container health
+          livenessProbe:
+            httpGet:
+              path: /
+              port: 80
+            initialDelaySeconds: 10
+            periodSeconds: 10
+
+
+          # Writable scratch mounts that NGINX needs
+          volumeMounts:
+            - name: nginx-cache
+              mountPath: /var/cache/nginx        # client_body_temp, proxy_temp, etc.
+            - name: nginx-run
+              mountPath: /var/run                 # pid, sockets
+            - name: nginx-log
+              mountPath: /var/log/nginx           # access/error logs (optional)
+
+      volumes:
+        - name: nginx-cache
+          emptyDir: {}
+        - name: nginx-run
+          emptyDir: {}
+        - name: nginx-log
+          emptyDir: {}
+      
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: frontend
+  labels:
+    app: taskboard
+    tier: web
+spec:
+  type: NodePort   # convenient with minikube
+  selector: { app: taskboard, tier: web }
+  ports:
+    - port: 80
+      targetPort: 80
