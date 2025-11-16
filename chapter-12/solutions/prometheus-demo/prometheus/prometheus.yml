@@ -1,0 +1,19 @@
+global:
+  scrape_interval: 15s
+
+scrape_configs:
+  - job_name: "prometheus"
+    static_configs:
+      - targets: ["prometheus:9090"]
+
+  - job_name: "go-service"
+    static_configs:
+      - targets: ["go-service:8081"]
+
+  - job_name: "py-service"
+    static_configs:
+      - targets: ["py-service:8082"]
+
+  - job_name: "cs-service"
+    static_configs:
+      - targets: ["cs-service:8083"]

@@ -1,0 +1,19 @@
+filebeat.inputs:
+  - type: log
+    enabled: true
+    paths:
+      - "/usr/src/app/logs/app.log"
+    fields:
+      service.name: "node-api"
+    fields_under_root: true
+
+  - type: log
+    enabled: true
+    paths:
+      - "/usr/src/app/logs/worker.log"
+    fields:
+      service.name: "ruby-worker"
+    fields_under_root: true
+    
+output.elasticsearch:
+  hosts: ["http://elasticsearch:9200"]

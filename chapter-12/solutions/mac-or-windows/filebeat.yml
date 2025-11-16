@@ -1,0 +1,12 @@
+filebeat.inputs:
+  - type: filestream
+    id: app-logs-filestream  # Required unique ID for filestream
+    enabled: true
+    paths:
+      - '/usr/src/app/logs/*.log'
+
+output.elasticsearch:
+  hosts: ["elasticsearch:9200"]
+
+logging.level: info
+logging.to_stderr: true
