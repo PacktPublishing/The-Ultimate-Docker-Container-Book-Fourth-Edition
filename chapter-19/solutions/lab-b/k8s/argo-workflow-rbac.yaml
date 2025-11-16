@@ -1,0 +1,46 @@
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: argo-workflows-pods
+  namespace: aiops
+rules:
+  # Workflow Pods need to manipulate their own Pod objects
+  - apiGroups: [""]
+    resources:
+      - pods
+      - pods/log
+    verbs:
+      - get
+      - list
+      - watch
+      - create
+      - update
+      - patch
+      - delete
+
+  # Allow running kubectl rollout restart on Deployments
+  - apiGroups: ["apps"]
+    resources:
+      - deployments
+      - deployments/scale
+      - deployments/status
+    verbs:
+      - get
+      - list
+      - watch
+      - patch
+      - update
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: argo-workflows-pods-binding
+  namespace: aiops
+subjects:
+  - kind: ServiceAccount
+    name: default
+    namespace: aiops
+roleRef:
+  kind: Role
+  name: argo-workflows-pods
+  apiGroup: rbac.authorization.k8s.io

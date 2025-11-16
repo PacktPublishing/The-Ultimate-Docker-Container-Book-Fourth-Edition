@@ -1,0 +1,55 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ai-autoscaler-api
+  namespace: aiops
+  labels:
+    app: ai-autoscaler-api
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: ai-autoscaler-api
+  template:
+    metadata:
+      labels:
+        app: ai-autoscaler-api
+    spec:
+      volumes:
+        - name: model-vol
+          persistentVolumeClaim:
+            claimName: model-artifacts
+      containers:
+        - name: api
+          image: gnschenker/ai-autoscaler-api:latest
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 8080
+              name: http
+          env:
+            - name: MODEL_PATH
+              value: /shared/cpu_forecast.joblib
+            # Optional tuning knobs from Lab A (keep or drop as you like):
+            - name: TARGET_UTIL
+              value: "0.5"
+            - name: PODS_PER_CORE
+              value: "1.0"
+          volumeMounts:
+            - name: model-vol
+              mountPath: /shared
+              readOnly: true
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: ai-autoscaler-api
+  namespace: aiops
+  labels:
+    app: ai-autoscaler-api
+spec:
+  selector:
+    app: ai-autoscaler-api
+  ports:
+    - name: http
+      port: 8080
+      targetPort: http

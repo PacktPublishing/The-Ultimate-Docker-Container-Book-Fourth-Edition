@@ -1,0 +1,26 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ai-autoscaler-api
+  namespace: aiops
+spec:
+  replicas: 1
+  selector: { matchLabels: { app: ai-autoscaler-api } }
+  template:
+    metadata: { labels: { app: ai-autoscaler-api } }
+    spec:
+      containers:
+        - name: api
+          image: gnschenker/ai-autoscaler-api:latest
+          ports: [{ containerPort: 8080 }]
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: ai-autoscaler-api
+  namespace: aiops
+spec:
+  selector: { app: ai-autoscaler-api }
+  ports:
+    - port: 8080
+      targetPort: 8080

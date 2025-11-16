@@ -1,0 +1,28 @@
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: patch-deploy
+  namespace: aiops
+rules:
+  # allow reading the Deployment object
+  - apiGroups: ["apps"]
+    resources: ["deployments"]
+    verbs: ["get"]
+  # allow manipulating the /scale subresource
+  - apiGroups: ["apps"]
+    resources: ["deployments/scale"]
+    verbs: ["get","update","patch"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: autoscale-bot-bind
+  namespace: aiops
+subjects:
+  - kind: ServiceAccount
+    name: scaler-bot
+    namespace: aiops
+roleRef:
+  kind: Role
+  name: patch-deploy
+  apiGroup: rbac.authorization.k8s.io

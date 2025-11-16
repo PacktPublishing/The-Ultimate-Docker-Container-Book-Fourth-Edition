@@ -1,0 +1,17 @@
+apiVersion: argoproj.io/v1alpha1
+kind: WorkflowTemplate
+metadata:
+  name: restart-serving
+  namespace: aiops
+spec:
+  templates:
+    - name: run
+      container:
+        image: bitnami/kubectl:latest
+        command:
+          - kubectl
+          - -n
+          - aiops
+          - rollout
+          - restart
+          - deploy/ai-autoscaler-api

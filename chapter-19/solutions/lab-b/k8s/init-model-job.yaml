@@ -1,0 +1,26 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: init-model
+  namespace: aiops
+spec:
+  template:
+    spec:
+      restartPolicy: Never
+      volumes:
+        - name: model-vol
+          persistentVolumeClaim:
+            claimName: model-artifacts
+      containers:
+        - name: init
+          image: alpine:3.20
+          command: ["/bin/sh","-c"]
+          args:
+            - |
+              echo "Put placeholder model if none exists";
+              if [ ! -f /shared/cpu_forecast.joblib ]; then
+                echo -n "0" > /shared/cpu_forecast.joblib
+              fi
+          volumeMounts:
+            - name: model-vol
+              mountPath: /shared

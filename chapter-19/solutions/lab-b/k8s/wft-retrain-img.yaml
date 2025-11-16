@@ -1,0 +1,25 @@
+apiVersion: argoproj.io/v1alpha1
+kind: WorkflowTemplate
+metadata:
+  name: retrain-model-img
+  namespace: aiops
+spec:
+  templates:
+    - name: run
+      container:
+        image: gnschenker/trainer:1.0
+        command: ["/bin/sh","-c"]
+        args:
+          - |
+            echo "Training model..."
+            python /app/train.py
+            echo "Copying model to shared volume..."
+            cp /tmp/cpu_forecast.joblib /shared/cpu_forecast.joblib
+            echo "Done."
+        volumeMounts:
+          - name: model-vol
+            mountPath: /shared
+      volumes:
+        - name: model-vol
+          persistentVolumeClaim:
+            claimName: model-artifacts

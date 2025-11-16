@@ -1,0 +1,16 @@
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: ai-autoscaler
+  namespace: aiops
+spec:
+  schedule: "*/1 * * * *"
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          serviceAccountName: scaler-bot
+          restartPolicy: OnFailure
+          containers:
+            - name: scaler
+              image: gnschenker/scaler-bot:latest

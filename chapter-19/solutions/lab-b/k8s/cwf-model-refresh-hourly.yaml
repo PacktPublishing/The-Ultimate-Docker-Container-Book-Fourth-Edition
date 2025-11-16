@@ -1,0 +1,24 @@
+apiVersion: argoproj.io/v1alpha1
+kind: CronWorkflow
+metadata:
+  name: model-refresh-hourly
+  namespace: aiops
+spec:
+  schedule: "0 * * * *"          # every hour
+  concurrencyPolicy: Forbid
+  startingDeadlineSeconds: 600
+  successfulJobsHistoryLimit: 2
+  failedJobsHistoryLimit: 2
+  workflowSpec:
+    entrypoint: pipeline
+    templates:
+      - name: pipeline
+        steps:
+          - - name: retrain
+              templateRef:
+                name: retrain-model-img
+                template: run
+          - - name: restart-serving
+              templateRef:
+                name: restart-serving
+                template: run

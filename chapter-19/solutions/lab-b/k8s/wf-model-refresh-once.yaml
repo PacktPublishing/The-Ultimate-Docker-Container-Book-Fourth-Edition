@@ -1,0 +1,18 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Workflow
+metadata:
+  generateName: model-refresh-once-
+  namespace: aiops
+spec:
+  entrypoint: pipeline
+  templates:
+    - name: pipeline
+      steps:
+        - - name: retrain
+            templateRef:
+              name: retrain-model-img
+              template: run
+        - - name: restart-serving
+            templateRef:
+              name: restart-serving
+              template: run
