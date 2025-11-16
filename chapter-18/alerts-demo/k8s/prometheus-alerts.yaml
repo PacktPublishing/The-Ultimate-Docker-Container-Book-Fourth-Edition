@@ -1,0 +1,48 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: prometheus-alerts
+  namespace: observability
+data:
+  alerts.yml: |
+    groups:
+      - name: service_alerts
+        interval: 30s
+        rules:
+          - alert: HighErrorRate
+            expr: rate(orders_errors_total[2m]) /
+              rate(orders_requests_total[2m]) > 0.05
+            for: 1m
+            labels:
+              severity: warning
+              service: orders-service
+            annotations:
+              summary: "High error rate in
+                orders-service"
+              description: "Error rate above 5% for more than 1 minute."
+
+          - alert: HighLatency
+            expr: histogram_quantile(0.95,
+              sum(rate(orders_request_seconds_bucket[2m]))
+              by (le)) > 1
+            for: 1m
+            labels:
+              severity: critical
+              service: orders-service
+            annotations:
+              summary: "High latency in
+                orders-service"
+              description: "p95 latency exceeds 1 s for over a minute."
+
+          - alert: PaymentsLatency
+            expr: histogram_quantile(0.95,
+              sum(rate(payments_request_seconds_bucket[2m]))
+              by (le)) > 0.8
+            for: 1m
+            labels:
+              severity: warning
+              service: payments-service
+            annotations:
+              summary: "High latency in
+                payments-service"
+              description: "p95 latency exceeds 800 ms for more than 1 minute." 

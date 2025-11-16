@@ -1,0 +1,31 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: prometheus-config
+  namespace: observability
+data:
+  prometheus.yml: |
+    global:
+      scrape_interval: 5s
+
+    scrape_configs:
+      - job_name: "prometheus"
+        static_configs:
+          - targets: ["localhost:9090"]
+
+      - job_name: "otel-collector"
+        static_configs:
+          - targets:
+              - "otel-collector.observability.svc.cluster.local:8888"
+
+      - job_name: "orders-service"
+        metrics_path: /metrics
+        static_configs:
+          - targets:
+              - "orders-service.observability.svc.cluster.local:8080"
+
+      - job_name: "payments-service"
+        metrics_path: /metrics
+        static_configs:
+          - targets:
+              - "payments-service.observability.svc.cluster.local:8080"

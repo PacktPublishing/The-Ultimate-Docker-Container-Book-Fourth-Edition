@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: payments-service
+  namespace: observability
+  labels:
+    app: payments-service
+spec:
+  selector:
+    app: payments-service
+  ports:
+    - name: http
+      port: 8080
+      targetPort: 8080
+  type: ClusterIP

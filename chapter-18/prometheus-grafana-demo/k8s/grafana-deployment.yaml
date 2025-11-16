@@ -1,0 +1,77 @@
+# ----------------------------
+# Grafana (patched with dashboard mounts)
+# ----------------------------
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: grafana-dashboards-provisioning
+  namespace: observability
+data:
+  dashboards.yaml: |
+    apiVersion: 1
+    providers:
+      - name: 'orders-payments-dashboards'
+        orgId: 1
+        folder: 'Observability'
+        type: file
+        disableDeletion: false
+        editable: true
+        options:
+          path: /var/lib/grafana/dashboards
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: grafana
+  namespace: observability
+  labels:
+    app: grafana
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: grafana
+  template:
+    metadata:
+      labels:
+        app: grafana
+    spec:
+      containers:
+        - name: grafana
+          image: grafana/grafana:11.2.0
+          ports:
+            - containerPort: 3000
+          env:
+            - name: GF_SECURITY_ADMIN_USER
+              value: "admin"
+            - name: GF_SECURITY_ADMIN_PASSWORD
+              value: "admin"
+          resources:
+            requests:
+              cpu: 100m
+              memory: 128Mi
+            limits:
+              cpu: 500m
+              memory: 512Mi
+          volumeMounts:
+            - name: dashboards
+              mountPath: /var/lib/grafana/dashboards
+            - name: dashboards-cm
+              mountPath: /var/lib/grafana/dashboards/orders-payments
+            - name: dashboards-prov
+              mountPath: /etc/grafana/provisioning/dashboards
+            - name: datasources-prov
+              mountPath: /etc/grafana/provisioning/datasources
+      volumes:
+        - name: dashboards
+          emptyDir: {}
+        - name: dashboards-cm
+          configMap:
+            name: grafana-dashboard-orders-payments
+        - name: dashboards-prov
+          configMap:
+            name: grafana-dashboards-provisioning
+        - name: datasources-prov
+          configMap:
+            name: grafana-datasources
+

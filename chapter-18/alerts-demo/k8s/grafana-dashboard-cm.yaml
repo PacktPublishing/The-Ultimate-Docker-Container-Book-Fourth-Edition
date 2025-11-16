@@ -1,0 +1,498 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: grafana-dashboard-orders-payments
+  namespace: observability
+  labels:
+    grafana_dashboard: "1"
+data:
+  grafana-dashboard.json: |
+    {
+      "id": null,
+      "uid": "orders-payments-obsv",
+      "title": "Orders & Payments \u2013 Observability (Prometheus + Jaeger)",
+      "timezone": "browser",
+      "version": 3,
+      "schemaVersion": 39,
+      "refresh": "10s",
+      "tags": [
+        "observability",
+        "demo",
+        "orders",
+        "payments"
+      ],
+      "time": {
+        "from": "now-1h",
+        "to": "now"
+      },
+      "templating": {
+        "list": [
+          {
+            "type": "query",
+            "name": "service",
+            "label": "Service",
+            "datasource": {
+              "type": "prometheus",
+              "uid": "prometheus"
+            },
+            "query": "label_values(up{job=~\"orders-service|payments-service\"}, job)",
+            "refresh": 2,
+            "includeAll": true,
+            "multi": true,
+            "current": {
+              "text": [
+                "orders-service",
+                "payments-service"
+              ],
+              "value": [
+                "orders-service",
+                "payments-service"
+              ]
+            }
+          },
+          {
+            "type": "custom",
+            "name": "quantile",
+            "label": "Latency quantile",
+            "query": "0.50,0.95,0.99",
+            "current": {
+              "text": "0.95",
+              "value": "0.95"
+            }
+          }
+        ]
+      },
+      "annotations": {
+        "list": [
+          {
+            "builtIn": 1,
+            "datasource": "-- Grafana --",
+            "enable": true,
+            "hide": true,
+            "iconColor": "rgba(0, 211, 255, 1)",
+            "name": "Annotations & Alerts",
+            "type": "dashboard"
+          }
+        ]
+      },
+      "panels": [
+        {
+          "type": "stat",
+          "title": "OTel Collector \u2013 Accepted spans / sec",
+          "gridPos": {
+            "h": 4,
+            "w": 24,
+            "x": 0,
+            "y": 0
+          },
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          },
+          "targets": [
+            {
+              "datasource": {
+                "type": "prometheus",
+                "uid": "prometheus"
+              },
+              "expr": "sum(rate(otelcol_receiver_accepted_spans[5m]))",
+              "legendFormat": "accepted_spans/s"
+            }
+          ],
+          "fieldConfig": {
+            "defaults": {
+              "unit": "ops",
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "dark-red"
+                  },
+                  {
+                    "color": "green",
+                    "value": 0.01
+                  }
+                ]
+              }
+            },
+            "overrides": []
+          },
+          "options": {
+            "reduceOptions": {
+              "calcs": [
+                "lastNotNull"
+              ]
+            }
+          }
+        },
+        {
+          "type": "stat",
+          "title": "RPS (requests/sec)",
+          "gridPos": {
+            "h": 5,
+            "w": 8,
+            "x": 0,
+            "y": 4
+          },
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          },
+          "targets": [
+            {
+              "datasource": {
+                "type": "prometheus",
+                "uid": "prometheus"
+              },
+              "expr": "sum(rate(orders_requests_total[5m])) by (job)",
+              "legendFormat": "orders \u2013 {{job}}"
+            },
+            {
+              "datasource": {
+                "type": "prometheus",
+                "uid": "prometheus"
+              },
+              "expr": "sum(rate(payments_requests_total[5m])) by (job)",
+              "legendFormat": "payments \u2013 {{job}}"
+            }
+          ],
+          "fieldConfig": {
+            "defaults": {
+              "unit": "ops"
+            },
+            "overrides": []
+          },
+          "options": {
+            "reduceOptions": {
+              "calcs": [
+                "lastNotNull"
+              ]
+            }
+          }
+        },
+        {
+          "type": "stat",
+          "title": "Error Rate % (orders-service)",
+          "gridPos": {
+            "h": 5,
+            "w": 8,
+            "x": 8,
+            "y": 4
+          },
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          },
+          "targets": [
+            {
+              "datasource": {
+                "type": "prometheus",
+                "uid": "prometheus"
+              },
+              "expr": "100 * ( sum(rate(orders_errors_total[5m])) by (job) / sum(rate(orders_requests_total[5m])) by (job) )",
+              "legendFormat": "{{job}}"
+            }
+          ],
+          "fieldConfig": {
+            "defaults": {
+              "unit": "percent",
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "green"
+                  },
+                  {
+                    "color": "yellow",
+                    "value": 1
+                  },
+                  {
+                    "color": "red",
+                    "value": 5
+                  }
+                ]
+              }
+            },
+            "overrides": []
+          },
+          "options": {
+            "reduceOptions": {
+              "calcs": [
+                "lastNotNull"
+              ]
+            }
+          }
+        },
+        {
+          "type": "stat",
+          "title": "p95 Latency (ms) \u2013 selected services",
+          "gridPos": {
+            "h": 5,
+            "w": 8,
+            "x": 16,
+            "y": 4
+          },
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          },
+          "targets": [
+            {
+              "datasource": {
+                "type": "prometheus",
+                "uid": "prometheus"
+              },
+              "expr": "1000 * histogram_quantile(${quantile}, sum(rate(orders_request_seconds_bucket[5m])) by (le, job))",
+              "legendFormat": "orders \u2013 p${quantile} {{job}}"
+            },
+            {
+              "datasource": {
+                "type": "prometheus",
+                "uid": "prometheus"
+              },
+              "expr": "1000 * histogram_quantile(${quantile}, sum(rate(payments_request_seconds_bucket[5m])) by (le, job))",
+              "legendFormat": "payments \u2013 p${quantile} {{job}}"
+            }
+          ],
+          "fieldConfig": {
+            "defaults": {
+              "unit": "ms",
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "green"
+                  },
+                  {
+                    "color": "yellow",
+                    "value": 300
+                  },
+                  {
+                    "color": "red",
+                    "value": 1000
+                  }
+                ]
+              }
+            },
+            "overrides": []
+          },
+          "options": {
+            "reduceOptions": {
+              "calcs": [
+                "lastNotNull"
+              ]
+            }
+          }
+        },
+        {
+          "type": "timeseries",
+          "title": "RPS over time",
+          "gridPos": {
+            "h": 8,
+            "w": 12,
+            "x": 0,
+            "y": 9
+          },
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          },
+          "targets": [
+            {
+              "datasource": {
+                "type": "prometheus",
+                "uid": "prometheus"
+              },
+              "expr": "sum(rate(orders_requests_total[5m])) by (job)",
+              "legendFormat": "orders \u2013 {{job}}"
+            },
+            {
+              "datasource": {
+                "type": "prometheus",
+                "uid": "prometheus"
+              },
+              "expr": "sum(rate(payments_requests_total[5m])) by (job)",
+              "legendFormat": "payments \u2013 {{job}}"
+            }
+          ],
+          "fieldConfig": {
+            "defaults": {
+              "unit": "ops"
+            },
+            "overrides": []
+          },
+          "options": {
+            "legend": {
+              "showLegend": true
+            }
+          }
+        },
+        {
+          "type": "timeseries",
+          "title": "Error Rate % over time (orders-service)",
+          "gridPos": {
+            "h": 8,
+            "w": 12,
+            "x": 12,
+            "y": 9
+          },
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          },
+          "targets": [
+            {
+              "datasource": {
+                "type": "prometheus",
+                "uid": "prometheus"
+              },
+              "expr": "100 * ( sum(rate(orders_errors_total[5m])) by (job) / sum(rate(orders_requests_total[5m])) by (job) )",
+              "legendFormat": "{{job}}"
+            }
+          ],
+          "fieldConfig": {
+            "defaults": {
+              "unit": "percent"
+            },
+            "overrides": []
+          },
+          "options": {
+            "legend": {
+              "showLegend": true
+            }
+          }
+        },
+        {
+          "type": "timeseries",
+          "title": "Latency p50 / p95 / p99 (ms)",
+          "gridPos": {
+            "h": 8,
+            "w": 24,
+            "x": 0,
+            "y": 17
+          },
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          },
+          "targets": [
+            {
+              "datasource": {
+                "type": "prometheus",
+                "uid": "prometheus"
+              },
+              "expr": "1000 * histogram_quantile(0.50, sum(rate(orders_request_seconds_bucket[5m])) by (le, job))",
+              "legendFormat": "orders p50 {{job}}"
+            },
+            {
+              "datasource": {
+                "type": "prometheus",
+                "uid": "prometheus"
+              },
+              "expr": "1000 * histogram_quantile(0.95, sum(rate(orders_request_seconds_bucket[5m])) by (le, job))",
+              "legendFormat": "orders p95 {{job}}"
+            },
+            {
+              "datasource": {
+                "type": "prometheus",
+                "uid": "prometheus"
+              },
+              "expr": "1000 * histogram_quantile(0.99, sum(rate(orders_request_seconds_bucket[5m])) by (le, job))",
+              "legendFormat": "orders p99 {{job}}"
+            },
+            {
+              "datasource": {
+                "type": "prometheus",
+                "uid": "prometheus"
+              },
+              "expr": "1000 * histogram_quantile(0.50, sum(rate(payments_request_seconds_bucket[5m])) by (le, job))",
+              "legendFormat": "payments p50 {{job}}"
+            },
+            {
+              "datasource": {
+                "type": "prometheus",
+                "uid": "prometheus"
+              },
+              "expr": "1000 * histogram_quantile(0.95, sum(rate(payments_request_seconds_bucket[5m])) by (le, job))",
+              "legendFormat": "payments p95 {{job}}"
+            },
+            {
+              "datasource": {
+                "type": "prometheus",
+                "uid": "prometheus"
+              },
+              "expr": "1000 * histogram_quantile(0.99, sum(rate(payments_request_seconds_bucket[5m])) by (le, job))",
+              "legendFormat": "payments p99 {{job}}"
+            }
+          ],
+          "fieldConfig": {
+            "defaults": {
+              "unit": "ms"
+            },
+            "overrides": []
+          },
+          "options": {
+            "legend": {
+              "showLegend": true
+            }
+          }
+        },
+        {
+          "type": "heatmap",
+          "title": "Latency distribution (histogram rate)",
+          "gridPos": {
+            "h": 8,
+            "w": 24,
+            "x": 0,
+            "y": 25
+          },
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          },
+          "targets": [
+            {
+              "datasource": {
+                "type": "prometheus",
+                "uid": "prometheus"
+              },
+              "expr": "sum by (le) (rate(orders_request_seconds_bucket[5m]))",
+              "legendFormat": "orders"
+            },
+            {
+              "datasource": {
+                "type": "prometheus",
+                "uid": "prometheus"
+              },
+              "expr": "sum by (le) (rate(payments_request_seconds_bucket[5m]))",
+              "legendFormat": "payments"
+            }
+          ],
+          "fieldConfig": {
+            "defaults": {
+              "unit": "ops"
+            },
+            "overrides": []
+          },
+          "options": {
+            "legend": {
+              "showLegend": true
+            }
+          }
+        },
+        {
+          "type": "text",
+          "title": "Quick links",
+          "gridPos": {
+            "h": 4,
+            "w": 24,
+            "x": 0,
+            "y": 33
+          },
+          "options": {
+            "mode": "markdown",
+            "content": "### Jaeger\\n- [Open Jaeger (localhost port-forward)](http://localhost:16686)\\n\\n- [Search traces for ${service:single}](http://localhost:16686/search?service=${service:single}&lookback=1h)\\n"
+          }
+        }
+      ]
+    }

@@ -1,0 +1,26 @@
+# Jaeger Collector Service
+# (for Otel Collector -> Jaeger)
+apiVersion: v1
+kind: Service
+metadata:
+  name: jaeger-collector
+  namespace: observability
+  labels:
+    app: jaeger
+spec:
+  selector:
+    app: jaeger
+  ports:
+    - name: jaeger-grpc
+      port: 14250
+      targetPort: 14250
+    - name: jaeger-http
+      port: 14268
+      targetPort: 14268
+    - name: otlp-grpc
+      port: 4317
+      targetPort: 4317
+    - name: otlp-http
+      port: 4318
+      targetPort: 4318
+  type: ClusterIP

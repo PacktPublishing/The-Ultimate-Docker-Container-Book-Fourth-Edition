@@ -1,0 +1,32 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: alertmanager-config
+  namespace: observability
+data:
+  config.yml: |
+    global:
+      resolve_timeout: 5m
+
+    route:
+      receiver: default
+      group_by: ['alertname', 'service']
+      group_wait: 10s
+      group_interval: 1m
+      repeat_interval: 2h
+
+    receivers:
+      - name: default
+        email_configs:
+          - to: "ops@example.com"
+            from: "alertmanager@example.com"
+            smarthost: "smtp.example.com:587"
+            auth_username: "alertmanager@example.com"
+            auth_identity: "alertmanager@example.com"
+            auth_password: "your-password"
+
+        slack_configs:
+          - api_url: "https://hooks.slack.com/services/your/webhook/url"
+            channel: "#alerts"
+            title: "{{ .CommonAnnotations.summary }}"
+            text: "{{ .CommonAnnotations.description }}"

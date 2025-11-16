@@ -1,0 +1,53 @@
+services:
+  # Orders service (Python)
+  orders-service:
+    build:
+      context: ./python-orders
+    image: orders-service:otel
+    container_name: orders-service
+    environment:
+      - SERVICE_NAME=orders-service
+      - OTEL_EXPORTER_OTLP_ENDPOINT=http://otel-collector:4318
+    ports:
+      - "8081:8080"
+    depends_on:
+      - payments-service
+      - otel-collector
+
+  # Payments service (Node.js)
+  payments-service:
+    build:
+      context: ./node-payments
+    image: payments-service:otel
+    container_name: payments-service
+    environment:
+      - SERVICE_NAME=payments-service
+      - OTEL_EXPORTER_OTLP_ENDPOINT=http://otel-collector:4318
+    expose:
+      - "8080"
+    depends_on:
+      - otel-collector
+
+  # OpenTelemetry Collector
+  otel-collector:
+    image: otel/opentelemetry-collector-contrib:0.103.1
+    container_name: otel-collector
+    command: ["--config=/etc/otel/config.yaml"]
+    volumes:
+      - ./otel-config.yaml:/etc/otel/config.yaml:ro
+    ports:
+      - "4317:4317"   # OTLP/gRPC
+      - "4318:4318"   # OTLP/HTTP
+    depends_on:
+      - jaeger
+
+  # Jaeger all-in-one
+  jaeger:
+    image: jaegertracing/all-in-one:1.58
+    container_name: jaeger
+    environment:
+      - COLLECTOR_OTLP_ENABLED=true
+    ports:
+      - "16686:16686" # Jaeger UI
+      - "14250:14250" # Collector gRPC
+      - "14268:14268" # Collector HTTP

@@ -1,0 +1,15 @@
+aapiVersion: v1
+kind: Service
+metadata:
+  name: orders-service
+  namespace: observability
+  labels:
+    app: orders-service
+spec:
+  selector:
+    app: orders-service
+  ports:
+    - name: http
+      port: 8080
+      targetPort: 8080
+  type: ClusterIP
