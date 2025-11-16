@@ -1,0 +1,3 @@
+rootProject.name = 'simple-tracing-java'
+
+include 'service1', 'service2'

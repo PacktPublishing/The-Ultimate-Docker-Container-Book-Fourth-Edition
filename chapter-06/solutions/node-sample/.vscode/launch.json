@@ -1,0 +1,12 @@
+{
+    "configurations": [
+        {
+           "name": "Attach to Node JS",
+            "type": "node",
+            "port":  9229,
+            "request": "attach",
+            "remoteRoot": "/app",
+            "restart": true
+        }
+    ]
+}

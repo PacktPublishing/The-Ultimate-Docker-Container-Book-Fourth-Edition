@@ -1,0 +1,7 @@
+// Service2 specific configuration
+// Common configuration is inherited from root build.gradle
+
+dependencies {
+    // Add any service2-specific dependencies here if needed
+    // Common dependencies are already included from root
+} 

@@ -1,0 +1,8 @@
+// Service1 specific configuration
+// Common configuration is inherited from root build.gradle
+
+dependencies {
+    // Add HTTP client for calling service2
+    implementation 'org.springframework.boot:spring-boot-starter-webflux'
+    // Common dependencies are already included from root
+}
