@@ -1,0 +1,13 @@
+FROM alpine:3.21 AS build
+RUN apk update && \
+    apk add --update alpine-sdk
+RUN mkdir /app
+WORKDIR /app
+COPY . /app
+RUN mkdir bin
+# Compile statically so runtime stage has no dependencies
+RUN gcc -static -O2 hello.c -o bin/hello
+
+FROM scratch
+COPY --from=build /app/bin/hello /hello
+ENTRYPOINT ["/hello"]
