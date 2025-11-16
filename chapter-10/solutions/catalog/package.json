@@ -1,0 +1,16 @@
+{
+  "name": "catalog-service",
+  "version": "1.0.0",
+  "description": "City Tours Catalog Service - extracted from monolith",
+  "main": "app.js",
+  "scripts": {
+    "start": "node app.js",
+    "dev": "node app.js"
+  },
+  "dependencies": {
+    "express": "^4.18.2"
+  },
+  "engines": {
+    "node": ">=16"
+  }
+}

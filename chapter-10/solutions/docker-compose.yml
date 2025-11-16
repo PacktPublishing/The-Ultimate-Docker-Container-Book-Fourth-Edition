@@ -1,0 +1,46 @@
+version: '3.8'
+services:
+  city-tours:
+    build: ./city-tours
+    ports:
+      - "5000:5000"
+    networks:
+      - web
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.city-tours.rule=Host(`acme.com`) && !PathPrefix(`/catalog`)"
+      - "traefik.http.routers.city-tours.entrypoints=web"
+      - "traefik.http.routers.city-tours.priority=1"
+      - "traefik.http.services.city-tours.loadbalancer.server.port=5000"
+
+  catalog:
+    build: ./catalog
+    ports:
+      - "3000:3000"
+    networks:
+      - web
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.catalog.rule=Host(`acme.com`) && PathPrefix(`/catalog`)"
+      - "traefik.http.routers.catalog.entrypoints=web"
+      - "traefik.http.services.catalog.loadbalancer.server.port=3000"
+
+  traefik:
+    image: traefik:v2.10
+    command:
+      - "--api.insecure=true"
+      - "--providers.docker=true"
+      - "--entrypoints.web.address=:80"
+      - "--log.level=DEBUG"
+      - "--providers.docker.exposedbydefault=false"
+    ports:
+      - "80:80"
+      - "8080:8080"  # Traefik dashboard
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    networks:
+      - web
+
+networks:
+  web:
+    external: false
