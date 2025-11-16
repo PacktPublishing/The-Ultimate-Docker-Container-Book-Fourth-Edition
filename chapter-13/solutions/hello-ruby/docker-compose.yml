@@ -1,0 +1,13 @@
+services:
+  web:
+    build: .
+    ports:
+      - "4567:4567"
+    secrets:
+      - db_password
+    environment:
+      DB_PASSWORD_FILE: /run/secrets/db_password
+
+secrets:
+  db_password:
+    file: ./db_password.txt

@@ -1,0 +1,23 @@
+# Build stage
+FROM ruby:latest AS builder
+WORKDIR /usr/src/app
+COPY Gemfile Gemfile.lock ./
+RUN gem install bundler && bundle install --jobs 4 --retry 3
+COPY . .
+
+# Runtime stage
+FROM ruby:3.4-slim AS runtime
+WORKDIR /usr/src/app
+COPY --from=builder /usr/src/app /usr/src/app
+COPY --from=builder /usr/local/bundle /usr/local/bundle
+
+RUN groupadd -r appgroup && useradd -r -g appgroup appuser \
+  && chown -R appuser:appgroup /usr/src/app
+
+USER appuser
+
+EXPOSE 4567
+HEALTHCHECK --interval=30s --timeout=5s --start-period=5s --retries=3 \
+  CMD curl -f http://localhost:4567/ || exit 1
+
+CMD ["bundle", "exec", "puma", "-p", "4567", "-b", "tcp://0.0.0.0"]

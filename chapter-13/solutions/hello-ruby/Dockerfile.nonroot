@@ -1,0 +1,15 @@
+FROM ruby:latest
+WORKDIR /usr/src/app
+COPY Gemfile Gemfile.lock ./
+RUN gem install bundler && bundle install --jobs 4 --retry 3
+COPY . .
+
+# Create a user and group with limited permissions
+RUN groupadd -r appgroup && useradd -r -g appgroup appuser
+# Change ownership of the app folder
+RUN chown -R appuser:appgroup /usr/src/app
+# Drop privileges
+USER appuser
+
+EXPOSE 4567
+CMD ["bundle", "exec", "puma", "-p", "4567", "-b", "tcp://0.0.0.0"]

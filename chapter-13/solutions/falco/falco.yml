@@ -1,0 +1,6 @@
+- rule: Shell In Container
+  desc: Detect a shell (e.g. bash, sh) running inside a container
+  condition: container and proc.name in (bash, sh, zsh) and proc.args contains "sh"
+  output: "Shell spawned in container (user=%user.name container_id=%container.id command=%proc.cmdline)"
+  priority: WARNING
+  tags: [process, container, anomaly]
