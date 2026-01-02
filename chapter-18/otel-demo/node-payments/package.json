@@ -5,7 +5,7 @@
   "main": "index.js",
   "license": "MIT",
   "dependencies": {
-    "express": "^4.19.2",
+    "express": "^4.22.1",
     "@opentelemetry/sdk-node": "^0.53.0",
     "@opentelemetry/api": "^1.9.0",
     "@opentelemetry/exporter-trace-otlp-http": "^0.53.0",
