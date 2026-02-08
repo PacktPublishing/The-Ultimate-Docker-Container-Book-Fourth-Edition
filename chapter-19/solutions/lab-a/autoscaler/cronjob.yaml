@@ -1,0 +1,24 @@
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: autoscaler
+  labels:
+    app: autoscaler
+spec:
+  schedule: "*/2 * * * *"
+  concurrencyPolicy: Forbid
+  successfulJobsHistoryLimit: 3
+  failedJobsHistoryLimit: 3
+  jobTemplate:
+    spec:
+      template:
+        metadata:
+          labels:
+            app: autoscaler
+        spec:
+          serviceAccountName: autoscaler-sa
+          containers:
+            - name: autoscaler
+              image: autoscaler:1.0
+              imagePullPolicy: IfNotPresent
+          restartPolicy: OnFailure

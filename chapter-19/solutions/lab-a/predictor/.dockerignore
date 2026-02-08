@@ -1,0 +1,6 @@
+data/
+__pycache__/
+*.csv
+*.pyc
+generate_data.py
+train_model.py
