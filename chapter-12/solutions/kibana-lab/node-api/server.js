@@ -3,7 +3,7 @@ const app = express();
 
 app.get('/', (req, res) => {
   console.log(`[INFO] Request received at /`);
-  res.send('Hello from Node API');
+  res.send('Hello from Node.js API');
 });
 
 app.get('/error', (req, res) => {
