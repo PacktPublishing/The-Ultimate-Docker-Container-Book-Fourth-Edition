@@ -12,5 +12,5 @@ app.get('/error', (req, res) => {
 });
 
 app.listen(8080, '0.0.0.0', () => {
-  console.log('Node API running on port 8080');
+  console.log('Node.js API running on port 8080');
 });
